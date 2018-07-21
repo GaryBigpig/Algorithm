@@ -13,24 +13,24 @@ def loadDataSet():
         ["mr", "licks", "ate", "my", "steak", "how", "to", "stop", "him"],
         ["quit", "buying", "worthless", "dog", "food", "stupid"],
     ]
-    classVec = [0,1,0,1,0,1]    #1 bad words, 0 good words
-    return postingList,classVec
+    classVec = [0, 1, 0, 1, 0, 1]  # 1 bad words, 0 good words
+    return postingList, classVec
 
 
 class NBayes(object):
     def __init__(self):
-        self.vocabulary=[]       #dictionary
-        self.idf=0               # 词典的idf权值向量
-        self.tf=0                # 训练集的权值矩阵
-        self.tdm=0               # P(x|yi)
-        self.Pcates={}           # P(yi)--是个类别字典
-        self.labels=[]           # 对应每个文本的分类，是个外部导入的列表
-        self.doclength=0         # 训练集文本数
-        self.vocablen=0          # 词典词长
-        self.testset=0           # 测试集
+        self.vocabulary = []  # dictionary
+        self.idf = 0  # 词典的idf权值向量
+        self.tf = 0  # 训练集的权值矩阵
+        self.tdm = 0  # P(x|yi)
+        self.Pcates = {}  # P(yi)--是个类别字典
+        self.labels = []  # 对应每个文本的分类，是个外部导入的列表
+        self.doclength = 0  # 训练集文本数
+        self.vocablen = 0  # 词典词长
+        self.testset = 0  # 测试集
 
     #   加载训练集并生成词典，以及tf, idf值
-    def tran_set(self,trainset,classVec):
+    def tran_set(self, trainset, classVec):
         self.cate_prob(classVec)  # 计算每个分类在数据集中的概率：P(yi)
         self.doclength = len(trainset)
         tempset = set()
@@ -47,19 +47,20 @@ class NBayes(object):
         labeltemps = set(self.labels)  # 获取全部分类
         for labeltemp in labeltemps:
             # 统计列表中重复的值：self.labels.count(labeltemp)
-            self.Pcates[labeltemp] = float(self.labels.count(labeltemp)) / float(len(self.labels))
+            self.Pcates[labeltemp] = float(self.labels.count(labeltemp)) / float(
+                len(self.labels)
+            )
 
     # 生成普通的词频向量
     def calc_wordfreq(self, trainset):
-        self.idf = np.zeros([1,self.vocablen])  #1*词典数
-        self.tf=np.zeros([self.doclength,self.vocablen])  #训练集文件数*词典数
-        for i in range(self.doclength):  #遍历文本
-            for word in trainset[i]:  #遍历文本中的每个词
-                self.tf[i,self.vocabulary.index(word)] +=1
+        self.idf = np.zeros([1, self.vocablen])  # 1*词典数
+        self.tf = np.zeros([self.doclength, self.vocablen])  # 训练集文件数*词典数
+        for i in range(self.doclength):  # 遍历文本
+            for word in trainset[i]:  # 遍历文本中的每个词
+                self.tf[i, self.vocabulary.index(word)] += 1
             for singleword in set(trainset[i]):
-                self.idf[0,self.vocabulary.index(singleword)] +=1
+                self.idf[0, self.vocabulary.index(singleword)] += 1
         # 生成 tf-idf
-
 
     def calc_tfidf(self, trainset):
         self.idf = np.zeros([1, self.vocablen])
@@ -80,7 +81,9 @@ class NBayes(object):
         sumlist = np.zeros([len(self.Pcates), 1])  # 统计每个分类的总值
         for indx in range(self.doclength):
             self.tdm[self.labels[indx]] += self.tf[indx]  # 将同一类别的词向量空间值加总
-            sumlist[self.labels[indx]] = np.sum(self.tdm[self.labels[indx]])  # 统计每个分类的总值--是个标量
+            sumlist[self.labels[indx]] = np.sum(
+                self.tdm[self.labels[indx]]
+            )  # 统计每个分类的总值--是个标量
         self.tdm = self.tdm / sumlist  # P(x|yi)
 
     # 测试集映射到当前词典

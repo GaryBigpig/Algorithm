@@ -11,6 +11,7 @@ def cosdist(vector1, vector2):
 def classify(testdata, trainSet, listClassses, k):
     dataSetSize = trainSet.shape[0]
     distances = np.array(np.zeros(dataSetSize))
+    # print(distances)
     for i in range(dataSetSize):
         distances[i] = cosdist(testdata, trainSet[i])
     sortedDistIndicies = np.argsort(-distances)
@@ -20,7 +21,6 @@ def classify(testdata, trainSet, listClassses, k):
             sortedDistIndicies[i]
         ]  # Get class label from testdata
         classCount[voteIlabel] = classCount.get(voteIlabel, 0) + 1
-    sortedClassCount = sorted(
-        classCount.iteritems(), key=op.itemgetter(1), reverse=True
-    )
+    sortedClassCount = sorted(classCount.items(), key=op.itemgetter(1), reverse=True)
+
     return sortedClassCount[0][0]
